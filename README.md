@@ -27,7 +27,7 @@ This project will be implemented with the following techologies:
 * Google map API
 
 ## Implementation Timeline
-Day1: Find the source of datasets and try to parse csv files to JS objects
-Day2: Become familiarized with D3.js, create index.html, implememnt google map API and display data of one year
-Day3: Use D3 to create canvas based on parse data and create options for user to switch between years
-Day4: Add options to select venue, gender, race, hover over to display description
+* Day1: Find the source of datasets and try to parse csv files to JS objects
+* Day2: Become familiarized with D3.js, create index.html, implememnt google map API and display data of one year
+* Day3: Use D3 to create canvas based on parse data and create options for user to switch between years* 
+* Day4: Add options to select venue, gender, race, hover over to display description
