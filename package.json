@@ -1,0 +1,28 @@
+{
+  "name": "nothing_political",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liamzhang40/nothing_political.git"
+  },
+  "scripts" :{
+    "webpack": "webpack --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liamzhang40/nothing_political/issues"
+  },
+  "homepage": "https://github.com/liamzhang40/nothing_political#readme",
+  "dependencies": {
+    "d3": "^5.4.0",
+    "jquery": "^3.3.1",
+    "webpack": "^3.11.0"
+  }
+}
