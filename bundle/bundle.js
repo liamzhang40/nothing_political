@@ -70,40 +70,30 @@
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_instances__ = __webpack_require__(5);
+
 
 
 document.addEventListener('DOMContentLoaded', () => {
 
+  let latLng = {};
   let instances;
   let sales;
+  Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
 
-  const map = Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
+  d3.json("https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json").then(cities => {
+    cities.forEach(city => latLng[city.city] = {latitude: city.latitude, longitude: city.longitude});
 
-  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv", data => {
-    instances = data;
 
-    const overlay = new google.maps.OverlayView();
+    d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
+      setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data, latLng), 1000);
+    });
 
-    overlay.onAdd = () => {
-      const layer = d3.select(this.getPanes().overlayMouseTarget).append("div")
-      .attr("class", "map-layer");
-
-      overlay.draw = () => {
-        const projection = this.getProjection(), padding = 10;
-
-        const marker = layer.selectAll("svg")
-                                 .data();
-      };
-    };
+    d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
+      window.sales = data;
+    });
   });
 
-  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
-    sales = data;
-  });
-
-  d3.json("/csv/stations.json", function(error, data) {
-    window.data = data;
-  });
 
 
 });
@@ -117,20 +107,66 @@ document.addEventListener('DOMContentLoaded', () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map_style__ = __webpack_require__(2);
 
 
+// const initMap = () => {
+//   const mapEl = document.getElementById('map');
+//   const mapOptions = {
+//       center: { lat: 38.09024, lng: -95.712891 },
+//       zoom: 5,
+//       styles: mapStyle,
+//       mapTypeControl: false,
+//       fullscreenControl: false,
+//       streetViewControl: false
+//   };
+//
+//   const map = new google.maps.Map(mapEl, mapOptions);
+//
+//   return map;
+// };
+
 const initMap = () => {
-  const mapEl = document.getElementById('map');
-  const mapOptions = {
-      center: { lat: 37.09024, lng: -95.712891 },
-      zoom: 5,
-      styles: __WEBPACK_IMPORTED_MODULE_0__map_style__["a" /* default */],
-      mapTypeControl: false,
-      fullscreenControl: false,
-      streetViewControl: false
-  };
+  const svg = d3.select("svg");
+  const path = d3.geoPath(null);
 
-  const map = new google.maps.Map(mapEl, mapOptions);
+  d3.json("https://d3js.org/us-10m.v1.json").then(us => {
+    const usData = topojson.feature(us, us.objects.states).features;
+    d3.tsv("https://gist.githubusercontent.com/mbostock/4090846/raw/07e73f3c2d21558489604a0bc434b3a5cf41a867/us-state-names.tsv")
+    .then(stateNames => {
+      const nameHash = {};
+      stateNames.forEach(name => {
+        nameHash[name.id] = name.name;
+      });
 
-  return map;
+      svg.append("g")
+        .attr("class", "states")
+        .selectAll("path")
+        .data(usData)
+        .enter().append("path")
+        .attr("d", path)
+        .attr("id", datum => datum.id);
+
+      svg.append("path")
+        .attr("class", "state-borders")
+        .attr("d", path(topojson.mesh(us, us.objects.states, (a, b) => { return a !== b; })));
+
+      svg.append("g")
+        .attr("class", "state-names")
+        .selectAll("text")
+        .data(usData)
+        .enter().append("text")
+        .text(datum => {
+          if (datum.id[0] === "0") {
+            return nameHash[datum.id[1]];
+          } else {
+            return nameHash[datum.id];
+          }
+        })
+        .attr("x", datum => path.centroid(datum)[0])
+        .attr("y", datum => path.centroid(datum)[1])
+        .attr("text-anchor", "middle")
+        .attr("fill", "#6f9ba5");
+
+      });
+  });
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (initMap);
@@ -443,7 +479,38 @@ const mapStyle = [
   }
 ];
 
-/* harmony default export */ __webpack_exports__["a"] = (mapStyle);
+/* unused harmony default export */ var _unused_webpack_default_export = (mapStyle);
+
+
+/***/ }),
+/* 3 */,
+/* 4 */,
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const updateInstances = (data, latLng) => {
+  const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
+
+  const map = d3.select("svg");
+  map.selectAll("circle")
+    .data(data)
+    .enter().append("circle")
+    .attr("r", datum => Math.sqrt(datum.total_victims))
+    .attr("fill", "red")
+    .attr("stroke", "black")
+    .attr("transform", datum => {
+      if (datum.latitude) {
+        return "translate(" + projection([datum.longitude, datum.latitude]) + ")";
+      } else {
+        return "translate(" + projection([latLng[datum].longitude, datum.latitude]) + ")";
+      }
+  });
+
+
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (updateInstances);
 
 
 /***/ })
