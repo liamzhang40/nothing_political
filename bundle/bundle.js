@@ -86,7 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
-      setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data, latLng), 1000);
+      instances = data;
+      setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data, latLng), 100);
     });
 
     d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
@@ -94,6 +95,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.getElementById('year-options').addEventListener('change', (e) => {
+    let year = e.currentTarget.value;
+    year = year.slice(year.length - 2);
+    const selected_instances = instances.filter(instance => {
+      let date = instance.date;
+      date = date.slice(date.length - 2);
+      return date === year;
+    });
+    Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selected_instances, latLng);
+  });
 
 
 });
@@ -493,9 +504,13 @@ const updateInstances = (data, latLng) => {
   const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
 
   const map = d3.select("svg");
-  map.selectAll("circle")
-    .data(data)
+  const circles = map.selectAll("circle").remove();
+
+  console.log(circles)
+  
+  circles.data(data)
     .enter().append("circle")
+    .transition().duration(750)
     .attr("r", datum => Math.sqrt(datum.total_victims))
     .attr("fill", datum => {
       if (datum.latitude || latLng[datum["city or county"]]) return "red";
@@ -510,9 +525,7 @@ const updateInstances = (data, latLng) => {
           return "translate(" + projection([city.longitude, city.latitude]) + ")";
         }
       }
-  });
-
-
+    });
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (updateInstances);
