@@ -497,13 +497,18 @@ const updateInstances = (data, latLng) => {
     .data(data)
     .enter().append("circle")
     .attr("r", datum => Math.sqrt(datum.total_victims))
-    .attr("fill", "red")
+    .attr("fill", datum => {
+      if (datum.latitude || latLng[datum["city or county"]]) return "red";
+    })
     .attr("stroke", "black")
     .attr("transform", datum => {
       if (datum.latitude) {
         return "translate(" + projection([datum.longitude, datum.latitude]) + ")";
       } else {
-        return "translate(" + projection([latLng[datum].longitude, datum.latitude]) + ")";
+        const city = latLng[datum["city or county"]];
+        if (city) {
+          return "translate(" + projection([city.longitude, city.latitude]) + ")";
+        }
       }
   });
 

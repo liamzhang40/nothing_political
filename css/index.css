@@ -25,6 +25,5 @@
 }
 
 .us-map circle {
-  position: absolute;
-  z-index: 5;
+  fill-opacity: 0.5;
 }
