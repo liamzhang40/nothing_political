@@ -70,7 +70,7 @@
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_instances__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_instances__ = __webpack_require__(3);
 
 
 
@@ -87,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
       instances = data;
-      setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data, latLng), 100);
+      setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data, latLng), 1000);
     });
 
     d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
@@ -98,12 +98,12 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('year-options').addEventListener('change', (e) => {
     let year = e.currentTarget.value;
     year = year.slice(year.length - 2);
-    const selected_instances = instances.filter(instance => {
+    const selectedInstances = instances.filter(instance => {
       let date = instance.date;
       date = date.slice(date.length - 2);
       return date === year;
     });
-    Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selected_instances, latLng);
+    Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances, latLng);
   });
 
 
@@ -153,7 +153,8 @@ const initMap = () => {
         .data(usData)
         .enter().append("path")
         .attr("d", path)
-        .attr("id", datum => datum.id);
+        .attr("id", datum => datum.id)
+        .on("click", handleClick);
 
       svg.append("path")
         .attr("class", "state-borders")
@@ -175,10 +176,14 @@ const initMap = () => {
         .attr("y", datum => path.centroid(datum)[1])
         .attr("text-anchor", "middle")
         .attr("fill", "#6f9ba5");
-
       });
   });
 };
+
+const handleClick = datum => {
+  d3.select(d3.event.target).attr("fill", "orange");
+};
+
 
 /* harmony default export */ __webpack_exports__["a"] = (initMap);
 
@@ -494,9 +499,7 @@ const mapStyle = [
 
 
 /***/ }),
-/* 3 */,
-/* 4 */,
-/* 5 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -504,28 +507,56 @@ const updateInstances = (data, latLng) => {
   const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
 
   const map = d3.select("svg");
-  const circles = map.selectAll("circle").remove();
-
-  console.log(circles)
-  
+  const circles = map.selectAll("circle").remove().exit();
   circles.data(data)
     .enter().append("circle")
+    .on("mouseover", handleMouseOver)
     .transition().duration(750)
     .attr("r", datum => Math.sqrt(datum.total_victims))
     .attr("fill", datum => {
-      if (datum.latitude || latLng[datum["city or county"]]) return "red";
+      if (datum.latitude) {
+        return "blue";
+      } else if (latLng[datum["city or county"]]) {
+        return "#f70000";
+      }
     })
     .attr("stroke", "black")
-    .attr("transform", datum => {
-      if (datum.latitude) {
-        return "translate(" + projection([datum.longitude, datum.latitude]) + ")";
-      } else {
-        const city = latLng[datum["city or county"]];
-        if (city) {
-          return "translate(" + projection([city.longitude, city.latitude]) + ")";
-        }
+    // .attr("transform", datum => {
+    //   if (datum.latitude) {
+    //     return "translate(" + projection([datum.longitude, datum.latitude]) + ")";
+    //   } else {
+    //     const city = latLng[datum["city or county"]];
+    //     if (city) {
+    //       return "translate(" + projection([city.longitude, city.latitude]) + ")";
+    //     }
+    //   }
+    // });
+    .attr("cx", )
+    .attr("cy", );
+};
+
+const parseLatlng = (datum, latLng) => {
+    if (datum.latitude) {
+      return projection([datum.longitude, datum.latitude]);
+    } else {
+      const city = latLng[datum["city or county"]];
+      if (city) {
+        return projection([city.longitude, city.latitude]);
       }
-    });
+    }
+};
+
+const handleMouseOver = (datum, i) => {
+  const currentCircle = d3.event.target;
+  if (datum.latitude) {
+    d3.select("svg").append("svg:text")
+      .text(datum.summary)
+      .attr("id", i)
+      // .attr("x", 500)
+      // .attr("y", 500)
+      .attr(currentCircle.attributes.transform)
+      .attr("fill", "#ccc");
+  }
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (updateInstances);

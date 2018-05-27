@@ -26,6 +26,7 @@
 
 .us-map circle {
   fill-opacity: 0.5;
+  position: absolute;
 }
 
 .year {
