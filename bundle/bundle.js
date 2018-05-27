@@ -81,19 +81,17 @@ document.addEventListener('DOMContentLoaded', () => {
   let sales;
   Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
 
-  d3.json("https://gist.githubusercontent.com/Miserlou/c5cd8364bf9b2420bb29/raw/2bf258763cdddd704f8ffd3ea9a3e81d25e2c6f6/cities.json").then(cities => {
-    cities.forEach(city => latLng[city.city] = {latitude: city.latitude, longitude: city.longitude});
 
-
-    d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
-      instances = data;
-      setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data, latLng), 1000);
-    });
-
-    d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
-      window.sales = data;
-    });
+  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
+    instances = data;
+    window.data = data;
+    setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data), 1000);
   });
+
+  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
+    window.sales = data;
+  });
+
 
   document.getElementById('year-options').addEventListener('change', (e) => {
     let year = e.currentTarget.value;
@@ -503,7 +501,7 @@ const mapStyle = [
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const updateInstances = (data, latLng) => {
+const updateInstances = (data) => {
   const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
 
   const map = d3.select("svg");
@@ -513,13 +511,7 @@ const updateInstances = (data, latLng) => {
     .on("mouseover", handleMouseOver)
     .transition().duration(750)
     .attr("r", datum => Math.sqrt(datum.total_victims))
-    .attr("fill", datum => {
-      if (datum.latitude) {
-        return "blue";
-      } else if (latLng[datum["city or county"]]) {
-        return "#f70000";
-      }
-    })
+    .attr("fill", "#f70000")
     .attr("stroke", "black")
     // .attr("transform", datum => {
     //   if (datum.latitude) {
@@ -531,19 +523,11 @@ const updateInstances = (data, latLng) => {
     //     }
     //   }
     // });
-    .attr("cx", )
-    .attr("cy", );
-};
-
-const parseLatlng = (datum, latLng) => {
-    if (datum.latitude) {
-      return projection([datum.longitude, datum.latitude]);
-    } else {
-      const city = latLng[datum["city or county"]];
-      if (city) {
-        return projection([city.longitude, city.latitude]);
-      }
-    }
+    .attr("cx", datum => {
+      console.log(datum.location, datum.date)
+      return projection([datum.longitude, datum.latitude])[0];
+    })
+    .attr("cy", datum => projection([datum.longitude, datum.latitude])[1]);
 };
 
 const handleMouseOver = (datum, i) => {
