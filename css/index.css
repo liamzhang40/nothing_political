@@ -1,5 +1,6 @@
 body {
   margin: 0;
+  font-family: 'Roboto', sans-serif;
 }
 
 .background {
@@ -28,6 +29,11 @@ body {
   font-size: 10px;
 }
 
+.state-names text:hover {
+  fill: orange;
+  cursor: pointer;
+}
+
 .us-map circle {
   fill-opacity: 0.5;
   position: absolute;
@@ -39,7 +45,28 @@ body {
   right: 200px;
 }
 
+.gender-options {
+  position: absolute;
+  top: 25%;
+  right: 200px;
+  color: #ccc;
+}
+
 foreignObject p {
   padding: 0 10px;
   font-size: 12px;
+}
+
+.axis-x,
+.axis-y {
+  stroke: #ccc;
+}
+
+.axis-x path,
+.axis-y path{
+  stroke: #ccc;
+}
+
+.bar {
+  fill: #6f9ba5;
 }

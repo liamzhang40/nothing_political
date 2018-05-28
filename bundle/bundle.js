@@ -79,29 +79,40 @@ document.addEventListener('DOMContentLoaded', () => {
   let latLng = {};
   let instances;
   let sales;
-  Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
+  const mapPromise = Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
 
-
-  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
-    instances = data;
-    window.data = data;
-    setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data), 1000);
-  });
-
-  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv", data => {
-    window.sales = data;
-  });
-
-
-  document.getElementById('year-options').addEventListener('change', (e) => {
-    let year = e.currentTarget.value;
-    year = year.slice(year.length - 2);
-    const selectedInstances = instances.filter(instance => {
-      let date = instance.date;
-      date = date.slice(date.length - 2);
-      return date === year;
+  mapPromise.then(() => {
+    d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
+      instances = data;
+      window.data = data;
+      Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data);
     });
-    Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances, latLng);
+
+    document.getElementById('year-options').addEventListener('change', e => {
+      let year = e.currentTarget.value;
+      year = year.slice(year.length - 2);
+      const selectedInstances = instances.filter(instance => {
+        let date = instance.date;
+        date = date.slice(date.length - 2);
+        return date === year;
+      });
+      Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
+    });
+
+    document.getElementsByName('gender').forEach(node => {
+      node.addEventListener('click', e => {
+        if (e.currentTarget.checked) {
+          const value = e.currentTarget.value;
+          const selectedInstances = instances.filter(instance => {
+            // let date = instance.date, gender = instance.gender;
+            // date = date.slice(date.length - 2);
+            return value === instance.gender;
+          });
+
+          Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
+        }
+      });
+    });
   });
 
 
@@ -114,6 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map_style__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_chart__ = __webpack_require__(4);
+
 
 
 // const initMap = () => {
@@ -132,11 +145,18 @@ document.addEventListener('DOMContentLoaded', () => {
 //   return map;
 // };
 
+let gunSales;
+
 const initMap = () => {
   const svg = d3.select("svg");
   const path = d3.geoPath(null);
 
-  d3.json("https://d3js.org/us-10m.v1.json").then(us => {
+  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv").then(data => {
+    window.sales = data;
+    gunSales = data;
+  });
+
+  const mapPromise = d3.json("https://d3js.org/us-10m.v1.json").then(us => {
     const usData = topojson.feature(us, us.objects.states).features;
     d3.tsv("https://gist.githubusercontent.com/mbostock/4090846/raw/07e73f3c2d21558489604a0bc434b3a5cf41a867/us-state-names.tsv")
     .then(stateNames => {
@@ -151,8 +171,7 @@ const initMap = () => {
         .data(usData)
         .enter().append("path")
         .attr("d", path)
-        .attr("id", datum => datum.id)
-        .on("click", handleClick);
+        .attr("id", datum => datum.id);
 
       svg.append("path")
         .attr("class", "state-borders")
@@ -173,13 +192,22 @@ const initMap = () => {
         .attr("x", datum => path.centroid(datum)[0])
         .attr("y", datum => path.centroid(datum)[1])
         .attr("text-anchor", "middle")
-        .attr("fill", "#6f9ba5");
+        .attr("fill", "#6f9ba5")
+        .on("click", handleClick);
       });
   });
+
+  return mapPromise;
 };
 
 const handleClick = datum => {
-  d3.select(d3.event.target).attr("fill", "orange");
+  const state = d3.event.target.textContent;
+  const selectedYear = document.getElementById("year-options").value;
+  if (!selectedYear) return;
+  const data = gunSales.filter(sale => {
+    return sale.month.slice(0,4) === selectedYear && sale.state === state;
+  });
+  Object(__WEBPACK_IMPORTED_MODULE_1__update_chart__["a" /* default */])(data);
 };
 
 
@@ -558,6 +586,62 @@ const handleMouseOut = (datum, i) => {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (updateInstances);
+
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+const MONTH = {
+  '01': 'January',
+  '02': 'February',
+  '03': 'March',
+  '04': 'April',
+  '05': 'May',
+  '06': 'June',
+  '07': 'July',
+  '08': 'August',
+  '09': 'September',
+  '10': 'October',
+  '11': 'November',
+  '12': 'December'
+};
+
+const updateChart = data => {
+  const x = d3.scaleBand().rangeRound([0, 400]),
+        y = d3.scaleLinear().rangeRound([400, 0]);
+  data.reverse();
+
+  x.domain(data.map(datum => datum.month.slice(datum.month.length - 2)));
+  y.domain([0, d3.max(data, (datum) => parseInt(datum.totals))]);
+  window.x = x;
+  window.y = y;
+  const svg = d3.select("svg");
+  const chart = svg.append("g")
+    .attr("class", "chart")
+    .attr("transform", "translate(900, 280)");
+
+  chart.append("g")
+    .attr("class", "axis-x")
+    .attr("transform", "translate(0, 400)")
+    .call(d3.axisBottom(x));
+
+  chart.append("g")
+    .attr("class", "axis-y")
+    .call(d3.axisLeft(y));
+
+  chart.selectAll(".bar")
+    .data(data)
+    .enter().append("rect")
+    .attr("class", "bar")
+    .attr("x", datum => x(datum.month.slice(datum.month.length - 2)) + 200 / data.length)
+    .attr("y", datum => y(parseInt(datum.totals)))
+    .attr("height", datum => 400 - y(parseInt(datum.totals)))
+    .attr("width", 10);
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (updateChart);
 
 
 /***/ })
