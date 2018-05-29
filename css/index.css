@@ -34,7 +34,7 @@ body {
   cursor: pointer;
 }
 
-.us-map circle {
+.us-map .circle-instances {
   fill-opacity: 0.5;
   position: absolute;
 }

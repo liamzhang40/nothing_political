@@ -84,37 +84,33 @@ document.addEventListener('DOMContentLoaded', () => {
   mapPromise.then(() => {
     d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
       instances = data;
-      window.data = data;
       Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data);
-    });
-
-    document.getElementById('year-options').addEventListener('change', e => {
-      let year = e.currentTarget.value;
-      year = year.slice(year.length - 2);
-      const selectedInstances = instances.filter(instance => {
-        let date = instance.date;
-        date = date.slice(date.length - 2);
-        return date === year;
-      });
-      Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
-    });
-
-    document.getElementsByName('gender').forEach(node => {
-      node.addEventListener('click', e => {
-        if (e.currentTarget.checked) {
-          const value = e.currentTarget.value;
-          const selectedInstances = instances.filter(instance => {
-            // let date = instance.date, gender = instance.gender;
-            // date = date.slice(date.length - 2);
-            return value === instance.gender;
-          });
-
-          Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
-        }
-      });
     });
   });
 
+  document.getElementById('year-options').addEventListener('change', e => {
+    let year = e.currentTarget.value;
+    year = year.slice(year.length - 2);
+    const selectedInstances = instances.filter(instance => {
+      let date = instance.date;
+      date = date.slice(date.length - 2);
+      return date === year;
+    });
+    Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
+  });
+
+  document.getElementsByName('gender').forEach(node => {
+    node.addEventListener('click', e => {
+      if (e.currentTarget.checked) {
+        const value = e.currentTarget.value;
+        const selectedInstances = instances.filter(instance => {
+          return value === instance.gender;
+        });
+
+        Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
+      }
+    });
+  });
 
 });
 
@@ -146,14 +142,18 @@ document.addEventListener('DOMContentLoaded', () => {
 // };
 
 let gunSales;
+let instances;
 
 const initMap = () => {
   const svg = d3.select("svg");
   const path = d3.geoPath(null);
 
   d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv").then(data => {
-    window.sales = data;
     gunSales = data;
+  });
+
+  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
+    instances = data;
   });
 
   const mapPromise = d3.json("https://d3js.org/us-10m.v1.json").then(us => {
@@ -204,10 +204,16 @@ const handleClick = datum => {
   const state = d3.event.target.textContent;
   const selectedYear = document.getElementById("year-options").value;
   if (!selectedYear) return;
-  const data = gunSales.filter(sale => {
+
+  const selectedGunSales = gunSales.filter(sale => {
     return sale.month.slice(0,4) === selectedYear && sale.state === state;
   });
-  Object(__WEBPACK_IMPORTED_MODULE_1__update_chart__["a" /* default */])(data);
+
+  const selectedInstances = instances.filter(instance => {
+    return instance.date.slice(instance.date.length - 2) === selectedYear.slice(2) && instance.location === state;
+  });
+
+  Object(__WEBPACK_IMPORTED_MODULE_1__update_chart__["a" /* default */])(selectedGunSales, selectedInstances);
 };
 
 
@@ -536,6 +542,7 @@ const updateInstances = (data) => {
   const circles = map.selectAll("circle").remove().exit();
   circles.data(data)
     .enter().append("circle")
+    .attr("class", "circle-instances")
     .on("mouseover", handleMouseOver)
     .on("mouseout", handleMouseOut)
     .transition().duration(750)
@@ -593,34 +600,32 @@ const handleMouseOut = (datum, i) => {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-const MONTH = {
-  '01': 'January',
-  '02': 'February',
-  '03': 'March',
-  '04': 'April',
-  '05': 'May',
-  '06': 'June',
-  '07': 'July',
-  '08': 'August',
-  '09': 'September',
-  '10': 'October',
-  '11': 'November',
-  '12': 'December'
-};
-
-const updateChart = data => {
+const updateChart = (gunsales, instances) => {
   const x = d3.scaleBand().rangeRound([0, 400]),
-        y = d3.scaleLinear().rangeRound([400, 0]);
-  data.reverse();
+        y = d3.scaleLinear().rangeRound([400, 0]),
+        barWidth = 400 / 2 / gunsales.length,
+        chartTitle = `${gunsales[0].month.slice(0,4)} ${gunsales[0].state} Firearm Background Checks`;
+        instances = parseInstances(instances);
+        console.log(instances);
+  gunsales.reverse();
+  debugger
+  x.domain(gunsales.map(datum => datum.month.slice(datum.month.length - 2)));
+  y.domain([0, d3.max(gunsales, (datum) => parseInt(datum.totals))]);
 
-  x.domain(data.map(datum => datum.month.slice(datum.month.length - 2)));
-  y.domain([0, d3.max(data, (datum) => parseInt(datum.totals))]);
-  window.x = x;
-  window.y = y;
   const svg = d3.select("svg");
+  svg.selectAll(".chart").remove();
   const chart = svg.append("g")
     .attr("class", "chart")
     .attr("transform", "translate(900, 280)");
+
+  chart.append('text')
+    .attr("class", "chart-title")
+    .attr("x", 40)
+    .attr("y", -20)
+    .attr("fill", "#ccc")
+    .attr("font-size", "15px")
+    .text(chartTitle);
+
 
   chart.append("g")
     .attr("class", "axis-x")
@@ -632,13 +637,31 @@ const updateChart = data => {
     .call(d3.axisLeft(y));
 
   chart.selectAll(".bar")
-    .data(data)
+    .data(gunsales)
     .enter().append("rect")
     .attr("class", "bar")
-    .attr("x", datum => x(datum.month.slice(datum.month.length - 2)) + 200 / data.length)
+    .attr("x", datum => x(datum.month.slice(datum.month.length - 2)) + barWidth / 2)
     .attr("y", datum => y(parseInt(datum.totals)))
     .attr("height", datum => 400 - y(parseInt(datum.totals)))
-    .attr("width", 10);
+    .attr("width", barWidth);
+
+  chart.selectAll(".dot")
+    .data(instances)
+    .enter().append("circle")
+    .attr("r", Math.sqrt(barWidth))
+    .attr("cx", datum => x(Object.keys(datum)[0]) + barWidth)
+    .attr("cy", datum => 400 - parseInt(Object.values(datum)[0]) * 100);
+};
+
+const parseInstances = instances => {
+  const res = {};
+  instances.forEach(instance => {
+    let month = instance.date.split('/')[0];
+    if (month.length === 1) month = "0" + month;
+    if (res[month]) res[month] += 1;
+    else res[month] = 1;
+  });
+  return Object.keys(res).map(key => {return {[key]: res[key]};});
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (updateChart);
