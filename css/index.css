@@ -42,13 +42,13 @@ body {
 .year {
   position: absolute;
   top: 20%;
-  right: 200px;
+  right: 15%;
 }
 
 .gender-options {
   position: absolute;
   top: 25%;
-  right: 200px;
+  right: 15%;
   color: #ccc;
 }
 
