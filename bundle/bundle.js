@@ -88,8 +88,16 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  document.getElementsByClassName('modal is-open')[0].addEventListener('click', e => {
+  document.getElementsByClassName('modal-screen')[0].addEventListener('click', e => {
     document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
+  });
+
+  document.getElementsByClassName('close-modal')[0].addEventListener('click', e => {
+    document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
+  });
+
+  document.getElementsByClassName('open-modal')[0].addEventListener('click', e => {
+    document.getElementsByClassName('modal')[0].classList.add('is-open');
   });
 
   document.getElementById('year-options').addEventListener('change', e => {
@@ -151,7 +159,7 @@ let instances;
 const initMap = () => {
   const svg = d3.select("svg");
   const path = d3.geoPath(null);
-  
+
   d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv").then(data => {
     gunSales = data;
   });
@@ -207,7 +215,10 @@ const initMap = () => {
 const handleClick = datum => {
   const state = d3.event.target.textContent;
   const selectedYear = document.getElementById("year-options").value;
-  if (!selectedYear) return;
+  if (!selectedYear) {
+    window.alert("Please select a year!");
+    return;
+  }
 
   const selectedGunSales = gunSales.filter(sale => {
     return sale.month.slice(0,4) === selectedYear && sale.state === state;
@@ -658,7 +669,7 @@ const handleMouseOver = (datum, i) => {
     .attr("opacity", 0)
     .transition()
     .duration(500)
-    .style("opacity", 0.75);
+    .attr("opacity", 0.75);
 
     const container = svg.append("foreignObject")
     .attr("width", 300)

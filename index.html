@@ -9,8 +9,12 @@
     <script src="https://d3js.org/topojson.v2.min.js"></script>
     <script src="./bundle/bundle.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
   </head>
   <body>
+    <header class="project-title">
+      Nothing Political
+    </header>
     <div class="background">
       <svg class="us-map" viewbox="0 0 1320 750"></svg>
     </div>
@@ -32,15 +36,45 @@
       </label>
     </div>
 
+    <div class="instruction">
+      <div class="instruction-container">
+        <div class="instruction-header">
+          <h1>Quick Guide</h1>
+          <span class="open-modal">Back to Intro</span>
+        </div>
+        <p>
+          Each circle represents one mass shooting instance and its size is proportional to the amount of victims. You can hover over the red circles for more detailed description.
+          <br>
+          After selecting the year, you can click on state names to generate a bar graph of firearm backgroud checks of the given year. Each white circle represents number of mass shooting occurence of that month.
+        </p>
+      </div>
+    </div>
+
     <div class="modal is-open">
       <div class="modal-popup">
-        <div class="instruction">
-          <p>Welcome to Nothing Political.</p>
+        <div class="introduction">
+          <p>
+            Welcome to Nothing Political. This project aims to visualize annual mass shooting instances vs gun sales across United State from 2014 to early 2018. It is built wth JavaScript, D3.js and Google geocode API. Datasets are obtained from three resources.
+            <ul>
+              <li><a href="https://github.com/BuzzFeedNews/nics-firearm-background-checks" target="_blank">FBI NICS Firearm Background Check Data</a></li>
+              <li><a href="http://www.gunviolencearchive.org/">Gun Violence Archive</a></li>
+              <li><a href="https://www.motherjones.com/politics/2012/07/mass-shootings-map/">Mother Jones</a></li>
+            </ul>
+            Firearm stores are required to record all of their gun sales but Federal law prohibits the federal government from collecting firearm sales records in a central respository. For the purpose of this project, the closest estimate is made with firearm background checks.
+          </p>
+          <span class="close-modal">&times</span>
         </div>
       </div>
 
       <div class="modal-screen">
       </div>
     </div>
+
+    <ul class="social-icon">
+      <li><a href="https://github.com/liamzhang40/nothing_political" target="_blank" class="github"><i class="fab fa-github"></i></a></li>
+      <li><a href="https://linkedin.com/in/liamzhang40" target="_blank" class="linkedin"><i class="fab fa-linkedin"></i></a></li>
+      <li><a href="http://liam-zhang.com" class="portfolio" target="_blank">Portfolio</a></li>
+    </ul>
   </body>
+
 </html>

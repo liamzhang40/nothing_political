@@ -3,6 +3,14 @@ body {
   font-family: 'Roboto', sans-serif;
 }
 
+.project-title {
+  position: absolute;
+  left: calc(50% - 180px);
+  padding: 30px 0;
+  color: #fff;
+  font-size: 50px;
+}
+
 .background {
   height: 100vh;
   width: 100vw;
@@ -92,7 +100,103 @@ foreignObject p {
 .modal-popup {
   position: absolute;
   top: 150px;
-  left: 45%;
+  left: calc(50% - 250px);
   z-index: 3;
   background: #fff;
+  width: 500px;
+  border-radius: 3px;
+}
+
+.modal-popup .introduction {
+  padding: 20px 30px;
+}
+
+.modal-popup .close-modal {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  font-size: 20px;
+  transition: 0.3s;
+  color: #ccc;
+}
+
+.modal-popup .close-modal:hover {
+  color: #6f9ba5;
+  cursor: pointer;
+}
+
+.instruction {
+  color: #6f9ba5;
+  position: absolute;
+  left: 0;
+  bottom: 0;
+}
+
+.instruction-container {
+  padding: 20px;
+  width: 500px;
+}
+
+.instruction-header {
+  display: flex;
+  justify-content: space-between;
+}
+
+.instruction-header h1 {
+  margin: 0;
+}
+
+.open-modal {
+  border: 2px solid #1d2c4d;
+  border-radius: 3px;
+  padding: 10px 20px;
+  margin-right: 20px;
+  transition: 0.3s;
+}
+
+.open-modal:hover {
+  cursor: pointer;
+  background-color: #fff;
+  color: #000;
+}
+
+.social-icon{
+  margin: 20px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  list-style: none;
+  display: flex;
+}
+
+.social-icon li {
+  padding: 0 20px;
+  font-size: 40px;
+  display: flex;
+  align-items: center;
+}
+
+.social-icon .github:hover,
+.social-icon .linkedin:hover {
+  font-size: 50px;
+  margin: -5px -5px 0 0;
+  transition: 0.3s;
+}
+
+.portfolio {
+  font-size: 15px;
+  color: #6f9ba5;
+  text-decoration: none;
+}
+
+.portfolio:hover {
+  text-decoration: underline;
+}
+
+.github {
+  color: #fff;
+}
+
+.linkedin {
+  color: #0077b5;
 }
