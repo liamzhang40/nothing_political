@@ -88,6 +88,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  document.getElementsByClassName('modal is-open')[0].addEventListener('click', e => {
+    document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
+  });
+
   document.getElementById('year-options').addEventListener('change', e => {
     let year = e.currentTarget.value;
     year = year.slice(year.length - 2);
@@ -147,7 +151,7 @@ let instances;
 const initMap = () => {
   const svg = d3.select("svg");
   const path = d3.geoPath(null);
-
+  
   d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/nics_firearm_background_checks.csv").then(data => {
     gunSales = data;
   });
@@ -606,9 +610,9 @@ const updateChart = (gunsales, instances) => {
         barWidth = 400 / 2 / gunsales.length,
         chartTitle = `${gunsales[0].month.slice(0,4)} ${gunsales[0].state} Firearm Background Checks`;
         instances = parseInstances(instances);
-        console.log(instances);
+
   gunsales.reverse();
-  debugger
+
   x.domain(gunsales.map(datum => datum.month.slice(datum.month.length - 2)));
   y.domain([0, d3.max(gunsales, (datum) => parseInt(datum.totals))]);
 
@@ -650,7 +654,8 @@ const updateChart = (gunsales, instances) => {
     .enter().append("circle")
     .attr("r", Math.sqrt(barWidth))
     .attr("cx", datum => x(Object.keys(datum)[0]) + barWidth)
-    .attr("cy", datum => 400 - parseInt(Object.values(datum)[0]) * 100);
+    .attr("cy", datum => 400 - parseInt(Object.values(datum)[0]) * 50)
+    .attr("fill", "#fff");
 };
 
 const parseInstances = instances => {
