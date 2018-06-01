@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   DOMElements.year_options = document.getElementById('year-options');
   DOMElements.gender_options = document.getElementsByName('gender');
-  DOMElements.venue_options = document.getElementsById('venue-options');
+  DOMElements.venue_options = document.getElementById('venue-options');
 });
 
 
@@ -182,6 +182,9 @@ const handleClick = datum => {
   const selectedYear = document.getElementById("year-options").value;
   if (!selectedYear) {
     window.alert("Please select a year!");
+    return;
+  } else if (selectedYear === 'old') {
+    window.alert("No background check records before 2014!");
     return;
   }
 
@@ -674,6 +677,7 @@ const handleMouseOut = (datum, i) => {
 
 let year;
 let gender;
+let venue;
 
 const listenerInstaller = (instances, DOMElements) => {
   DOMElements.year_options.addEventListener('change', e => {
@@ -683,7 +687,7 @@ const listenerInstaller = (instances, DOMElements) => {
   });
 
   DOMElements.venue_options.addEventListener('change', e => {
-    venue = e.currentTarget.value.slice(2);
+    venue = e.currentTarget.value;
     const filteredInstances = filterInstances(instances);
     Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
   });
@@ -705,7 +709,8 @@ const filterInstances = (instances) => {
     let date = instance.date;
     date = date.slice(date.length - 2);
 
-    return (!year || date === year) &&
+    return (!year || date === year || parseInt(date) < 14) &&
+      (!venue || instance.venue === venue) &&
       (!gender || instance.gender === gender);
   });
 
