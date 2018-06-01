@@ -49,17 +49,17 @@ body {
 
 .filter-options {
   position: absolute;
-  top: 20%;
+  top: 15%;
   right: 15%;
   list-style: none;
   color: #ccc;
   display: flex;
   flex-direction: column;
-  align-items: flex-end;
+  align-items: flex-start;
 }
 
 .filter-options li {
-  padding: 5px;
+  padding: 10px;
 }
 
 .gender-options {

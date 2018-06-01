@@ -104,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const DOMElements = {};
 
   DOMElements.year_options = document.getElementById('year-options');
-  DOMElements.gender_options = document.getElementsByName('gender');
+  DOMElements.gender_options = document.getElementById('gender-options');
   DOMElements.venue_options = document.getElementById('venue-options');
 });
 
@@ -692,16 +692,11 @@ const listenerInstaller = (instances, DOMElements) => {
     Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
   });
 
-  DOMElements.gender_options.forEach(node => {
-    node.addEventListener('click', e => {
-      if (e.currentTarget.checked) {
-        gender = e.currentTarget.value;
-      }
-      const filteredInstances = filterInstances(instances);
-      Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
-    });
+  DOMElements.gender_options.addEventListener('change', e => {
+    gender = e.currentTarget.value;
+    const filteredInstances = filterInstances(instances);
+    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
   });
-
 };
 
 const filterInstances = (instances) => {
