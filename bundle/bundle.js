@@ -71,6 +71,8 @@
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_instances__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__listener_installer__ = __webpack_require__(5);
+
 
 
 
@@ -78,15 +80,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let latLng = {};
   let instances;
-  let sales;
-  const mapPromise = Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
+  Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
 
-  mapPromise.then(() => {
-    d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
-      instances = data;
-      Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data);
-    });
+  d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
+    instances = data;
+    setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data), 1000);
+    Object(__WEBPACK_IMPORTED_MODULE_2__listener_installer__["a" /* default */])(instances, DOMElements);
   });
+
 
   document.getElementsByClassName('modal-screen')[0].addEventListener('click', e => {
     document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
@@ -100,30 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementsByClassName('modal')[0].classList.add('is-open');
   });
 
-  document.getElementById('year-options').addEventListener('change', e => {
-    let year = e.currentTarget.value;
-    year = year.slice(year.length - 2);
-    const selectedInstances = instances.filter(instance => {
-      let date = instance.date;
-      date = date.slice(date.length - 2);
-      return date === year;
-    });
-    Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
-  });
+  const DOMElements = {};
 
-  document.getElementsByName('gender').forEach(node => {
-    node.addEventListener('click', e => {
-      if (e.currentTarget.checked) {
-        const value = e.currentTarget.value;
-        const selectedInstances = instances.filter(instance => {
-          return value === instance.gender;
-        });
-
-        Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(selectedInstances);
-      }
-    });
-  });
-
+  DOMElements.year_options = document.getElementById('year-options');
+  DOMElements.gender_options = document.getElementsByName('gender');
+  DOMElements.venue_options = document.getElementsById('venue-options');
 });
 
 
@@ -136,22 +118,6 @@ document.addEventListener('DOMContentLoaded', () => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_chart__ = __webpack_require__(3);
 
 
-
-// const initMap = () => {
-//   const mapEl = document.getElementById('map');
-//   const mapOptions = {
-//       center: { lat: 38.09024, lng: -95.712891 },
-//       zoom: 5,
-//       styles: mapStyle,
-//       mapTypeControl: false,
-//       fullscreenControl: false,
-//       streetViewControl: false
-//   };
-//
-//   const map = new google.maps.Map(mapEl, mapOptions);
-//
-//   return map;
-// };
 
 let gunSales;
 let instances;
@@ -209,7 +175,6 @@ const initMap = () => {
       });
   });
 
-  return mapPromise;
 };
 
 const handleClick = datum => {
@@ -602,16 +567,21 @@ const updateChart = (gunsales, instances) => {
     .attr("class", "bar")
     .attr("x", datum => x(datum.month.slice(datum.month.length - 2)) + barWidth / 2)
     .attr("y", datum => y(parseInt(datum.totals)))
+    .transition()
+    .duration(500)
     .attr("height", datum => 400 - y(parseInt(datum.totals)))
     .attr("width", barWidth);
 
   chart.selectAll(".dot")
     .data(instances)
     .enter().append("circle")
-    .attr("r", Math.sqrt(barWidth))
     .attr("cx", datum => x(Object.keys(datum)[0]) + barWidth)
     .attr("cy", datum => 400 - parseInt(Object.values(datum)[0]) * 50)
-    .attr("fill", "#fff");
+    .attr("fill", "#fff")
+    .attr("r", 0.5)
+    .transition()
+    .duration(750)
+    .attr("r", Math.sqrt(barWidth));
 };
 
 const parseInstances = instances => {
@@ -643,15 +613,16 @@ const updateInstances = (data) => {
     .attr("class", "circle-instances")
     .on("mouseover", handleMouseOver)
     .on("mouseout", handleMouseOut)
-    .transition().duration(750)
-    .attr("r", datum => Math.sqrt(datum.total_victims))
     .attr("fill", datum => {
       if (datum.sources) return "#f70000";
       else return "#ccc";
     })
     .attr("stroke", "black")
     .attr("cx", datum => projection([datum.longitude, datum.latitude])[0])
-    .attr("cy", datum => projection([datum.longitude, datum.latitude])[1]);
+    .attr("cy", datum => projection([datum.longitude, datum.latitude])[1])
+    .attr("r", 0.5)
+    .transition().duration(750)
+    .attr("r", datum => Math.sqrt(datum.total_victims));
 };
 
 const handleMouseOver = (datum, i) => {
@@ -691,6 +662,57 @@ const handleMouseOut = (datum, i) => {
 };
 
 /* harmony default export */ __webpack_exports__["a"] = (updateInstances);
+
+
+/***/ }),
+/* 5 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__update_instances__ = __webpack_require__(4);
+
+
+let year;
+let gender;
+
+const listenerInstaller = (instances, DOMElements) => {
+  DOMElements.year_options.addEventListener('change', e => {
+    year = e.currentTarget.value.slice(2);
+    const filteredInstances = filterInstances(instances);
+    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+  });
+
+  DOMElements.venue_options.addEventListener('change', e => {
+    venue = e.currentTarget.value.slice(2);
+    const filteredInstances = filterInstances(instances);
+    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+  });
+
+  DOMElements.gender_options.forEach(node => {
+    node.addEventListener('click', e => {
+      if (e.currentTarget.checked) {
+        gender = e.currentTarget.value;
+      }
+      const filteredInstances = filterInstances(instances);
+      Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+    });
+  });
+
+};
+
+const filterInstances = (instances) => {
+  const res = instances.filter(instance => {
+    let date = instance.date;
+    date = date.slice(date.length - 2);
+
+    return (!year || date === year) &&
+      (!gender || instance.gender === gender);
+  });
+
+  return res;
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (listenerInstaller);
 
 
 /***/ })

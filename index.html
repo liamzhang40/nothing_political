@@ -9,6 +9,7 @@
     <script src="https://d3js.org/topojson.v2.min.js"></script>
     <script src="./bundle/bundle.js"></script>
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="icon" href="./favicon.png">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
   </head>
   <body>
@@ -18,23 +19,46 @@
     <div class="background">
       <svg class="us-map" viewbox="0 0 1320 750"></svg>
     </div>
-    <select class="year" id="year-options">
-      <option value="" selected disabled>--select a year--</option>
-      <option value="2014">2014</option>
-      <option value="2015">2015</option>
-      <option value="2016">2016</option>
-      <option value="2017">2017</option>
-      <option value="2018">2018</option>
-    </select>
+    <ul class='filter-options'>
+      <li>
+        <select class="year-options" id="year-options">
+          <option value="" selected disabled>--select year--</option>
+          <option value="2014">2014</option>
+          <option value="2015">2015</option>
+          <option value="2016">2016</option>
+          <option value="2017">2017</option>
+          <option value="2018">2018</option>
+        </select>
+      </li>
 
-    <div class="gender-options">
-      <label>Male
-        <input type="radio" name="gender" value="M">
-      </label>
-      <label>Female
-        <input type="radio" name="gender" value="F">
-      </label>
-    </div>
+      <li>
+        <select class="venue-options" id="venue-options">
+          <option value="" selected disabled>--select venue--</option>
+          <option value="School">School</option>
+          <option value="Workplace">Workplace</option>
+          <option value="Religious">Religious</option>
+          <option value="Airport">Airport</option>
+          <option value="Military">Military</option>
+          <option value="Other">Other</option>
+        </select>
+      </li>
+
+      <li>
+        <div class="gender-options">
+            <!-- <label>All
+            <input type="radio" name="gender" value="" checked>
+          </label> -->
+          <label>Male
+            <input type="radio" name="gender" value="M">
+          </label>
+          <label>Female
+            <input type="radio" name="gender" value="F">
+          </label>
+        </div>
+      </li>
+    </ul>
+
+
 
     <div class="instruction">
       <div class="instruction-container">
@@ -54,7 +78,7 @@
       <div class="modal-popup">
         <div class="introduction">
           <p>
-            Welcome to Nothing Political. This project aims to visualize annual mass shooting instances vs gun sales across United State from 2014 to early 2018. It is built wth JavaScript, D3.js and Google geocode API. Datasets are obtained from three resources.
+            Welcome to Nothing Political. This project visualizes annual mass shooting instances vs gun sales across United State from 2014 to early 2018. It is built wth JavaScript, D3.js and Google geocode API. Datasets are obtained from three resources:
             <ul>
               <li><a href="https://github.com/BuzzFeedNews/nics-firearm-background-checks" target="_blank">FBI NICS Firearm Background Check Data</a></li>
               <li><a href="http://www.gunviolencearchive.org/">Gun Violence Archive</a></li>
@@ -73,7 +97,7 @@
     <ul class="social-icon">
       <li><a href="https://github.com/liamzhang40/nothing_political" target="_blank" class="github"><i class="fab fa-github"></i></a></li>
       <li><a href="https://linkedin.com/in/liamzhang40" target="_blank" class="linkedin"><i class="fab fa-linkedin"></i></a></li>
-      <li><a href="http://liam-zhang.com" class="portfolio" target="_blank">Portfolio</a></li>
+      <li><a href="http://liam-zhang.com" class="portfolio" target="_blank"><img src="favicon-w.png" alt=""></a></li>
     </ul>
   </body>
 

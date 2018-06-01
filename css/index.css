@@ -47,17 +47,29 @@ body {
   position: absolute;
 }
 
-.year {
+.filter-options {
   position: absolute;
   top: 20%;
   right: 15%;
+  list-style: none;
+  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.filter-options li {
+  padding: 5px;
 }
 
 .gender-options {
-  position: absolute;
-  top: 25%;
-  right: 15%;
-  color: #ccc;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.gender-options label {
+  margin: 5px 0;
 }
 
 foreignObject p {
@@ -176,21 +188,23 @@ foreignObject p {
   align-items: center;
 }
 
-.social-icon .github:hover,
-.social-icon .linkedin:hover {
-  font-size: 50px;
-  margin: -5px -5px 0 0;
-  transition: 0.3s;
+.social-icon li:hover {
+  position: relative;
+  bottom: 2px;
+  right: 2px;
 }
 
 .portfolio {
-  font-size: 15px;
-  color: #6f9ba5;
+  width: 35px;
+  height: 35px;
   text-decoration: none;
+  margin-bottom: 8px;
+  transition: 0.3s;
 }
 
-.portfolio:hover {
-  text-decoration: underline;
+.portfolio img {
+  width: 100%;
+  height: 100%;
 }
 
 .github {
