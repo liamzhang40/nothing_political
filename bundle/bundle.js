@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
+/******/ 	return __webpack_require__(__webpack_require__.s = 1);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -68,9 +68,75 @@
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+const updateInstances = (data) => {
+  const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
+
+  const map = d3.select("svg");
+  const circles = map.selectAll(".circle-instances").remove().exit();
+  circles.data(data)
+    .enter().append("circle")
+    .attr("class", "circle-instances")
+    .on("mouseover", handleMouseOver)
+    .on("mouseout", handleMouseOut)
+    .attr("fill", datum => {
+      if (datum.sources) return "#f70000";
+      else return "#ccc";
+    })
+    .attr("stroke", "black")
+    .attr("cx", datum => projection([datum.longitude, datum.latitude])[0])
+    .attr("cy", datum => projection([datum.longitude, datum.latitude])[1])
+    .attr("r", 0.5)
+    .transition().duration(750)
+    .attr("r", datum => Math.sqrt(datum.total_victims));
+};
+
+const handleMouseOver = (datum, i) => {
+  if (datum.sources) {
+    const currentCircle = d3.event.target;
+    const svg = d3.select("svg");
+    const dialogue = svg.append("polygon")
+    .attr("id", `c${i}`)
+    .attr("points", "0,0 0,160 300,160 300,0 50,0 37.5,-15 25,0")
+    .attr("transform", `translate(
+      ${currentCircle.attributes.cx.nodeValue - 37.5},
+      ${parseFloat(currentCircle.attributes.cy.nodeValue) + 30}
+    )`)
+    .attr("fill", "#D8D8D8")
+    .attr("opacity", 0)
+    .transition()
+    .duration(500)
+    .attr("opacity", 0.75);
+
+    const container = svg.append("foreignObject")
+    .attr("width", 300)
+    .attr("height", 160)
+    .attr("x", currentCircle.attributes.cx.nodeValue - 37.5)
+    .attr("y", parseFloat(currentCircle.attributes.cy.nodeValue) + 30);
+
+    container.append("xhtml:div")
+      .append("p")
+      .html(`${datum.summary}`);
+  }
+};
+
+const handleMouseOut = (datum, i) => {
+  if (datum.sources) {
+    d3.select(`#c${i}`).remove();
+    d3.select("foreignObject").remove()
+;  }
+};
+
+/* harmony default export */ __webpack_exports__["a"] = (updateInstances);
+
+
+/***/ }),
+/* 1 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_instances__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_instances__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__listener_installer__ = __webpack_require__(5);
 
 
@@ -106,16 +172,18 @@ document.addEventListener('DOMContentLoaded', () => {
   DOMElements.year_options = document.getElementById('year-options');
   DOMElements.gender_options = document.getElementById('gender-options');
   DOMElements.venue_options = document.getElementById('venue-options');
+  DOMElements.race_options = document.getElementById('race-options');
+
 });
 
 
 /***/ }),
-/* 1 */
+/* 2 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map_style__ = __webpack_require__(2);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_chart__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__map_style__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__update_chart__ = __webpack_require__(4);
 
 
 
@@ -204,7 +272,7 @@ const handleClick = datum => {
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -514,7 +582,7 @@ const mapStyle = [
 
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -602,82 +670,17 @@ const parseInstances = instances => {
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-const updateInstances = (data) => {
-  const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
-
-  const map = d3.select("svg");
-  const circles = map.selectAll("circle").remove().exit();
-  circles.data(data)
-    .enter().append("circle")
-    .attr("class", "circle-instances")
-    .on("mouseover", handleMouseOver)
-    .on("mouseout", handleMouseOut)
-    .attr("fill", datum => {
-      if (datum.sources) return "#f70000";
-      else return "#ccc";
-    })
-    .attr("stroke", "black")
-    .attr("cx", datum => projection([datum.longitude, datum.latitude])[0])
-    .attr("cy", datum => projection([datum.longitude, datum.latitude])[1])
-    .attr("r", 0.5)
-    .transition().duration(750)
-    .attr("r", datum => Math.sqrt(datum.total_victims));
-};
-
-const handleMouseOver = (datum, i) => {
-  if (datum.sources) {
-    const currentCircle = d3.event.target;
-    const svg = d3.select("svg");
-    const dialogue = svg.append("polygon")
-    .attr("id", `c${i}`)
-    .attr("points", "0,0 0,160 300,160 300,0 50,0 37.5,-15 25,0")
-    .attr("transform", `translate(
-      ${currentCircle.attributes.cx.nodeValue - 37.5},
-      ${parseFloat(currentCircle.attributes.cy.nodeValue) + 30}
-    )`)
-    .attr("fill", "#D8D8D8")
-    .attr("opacity", 0)
-    .transition()
-    .duration(500)
-    .attr("opacity", 0.75);
-
-    const container = svg.append("foreignObject")
-    .attr("width", 300)
-    .attr("height", 160)
-    .attr("x", currentCircle.attributes.cx.nodeValue - 37.5)
-    .attr("y", parseFloat(currentCircle.attributes.cy.nodeValue) + 30);
-
-    container.append("xhtml:div")
-      .append("p")
-      .html(`${datum.summary}`);
-  }
-};
-
-const handleMouseOut = (datum, i) => {
-  if (datum.sources) {
-    d3.select(`#c${i}`).remove();
-    d3.select("foreignObject").remove()
-;  }
-};
-
-/* harmony default export */ __webpack_exports__["a"] = (updateInstances);
-
-
-/***/ }),
 /* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__update_instances__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__update_instances__ = __webpack_require__(0);
 
 
 let year;
 let gender;
 let venue;
+let race;
 
 const listenerInstaller = (instances, DOMElements) => {
   DOMElements.year_options.addEventListener('change', e => {
@@ -697,6 +700,12 @@ const listenerInstaller = (instances, DOMElements) => {
     const filteredInstances = filterInstances(instances);
     Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
   });
+
+  DOMElements.race_options.addEventListener('change', e => {
+    race = e.currentTarget.value;
+    const filteredInstances = filterInstances(instances);
+    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+  });
 };
 
 const filterInstances = (instances) => {
@@ -706,7 +715,8 @@ const filterInstances = (instances) => {
 
     return (!year || date === year || parseInt(date) < 14) &&
       (!venue || instance.venue === venue) &&
-      (!gender || instance.gender === gender);
+      (!gender || instance.gender === gender) &&
+      (!race || instance.race.toUpperCase() === race.toUpperCase());
   });
 
   return res;
