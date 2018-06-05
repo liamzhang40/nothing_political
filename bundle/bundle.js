@@ -713,7 +713,7 @@ const filterInstances = (instances) => {
     let date = instance.date;
     date = date.slice(date.length - 2);
 
-    return (!year || date === year || parseInt(date) < 14) &&
+    return (!year || date === year || (parseInt(date) < 14 && year === "d")) &&
       (!venue || instance.venue === venue) &&
       (!gender || instance.gender === gender) &&
       (!race || instance.race.toUpperCase() === race.toUpperCase());
