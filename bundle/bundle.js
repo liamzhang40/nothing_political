@@ -687,6 +687,10 @@ const listenerInstaller = (instances, DOMElements) => {
     document.querySelectorAll("select").forEach(select => {
       select.selectedIndex = 0;
     });
+    year = "";
+    gender = "";
+    venue = "";
+    race = "";
     Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(instances);
   });
 
