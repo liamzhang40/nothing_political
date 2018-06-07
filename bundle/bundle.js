@@ -173,7 +173,7 @@ document.addEventListener('DOMContentLoaded', () => {
   DOMElements.gender_options = document.getElementById('gender-options');
   DOMElements.venue_options = document.getElementById('venue-options');
   DOMElements.race_options = document.getElementById('race-options');
-
+  DOMElements.reset = document.getElementById('reset');
 });
 
 
@@ -683,6 +683,13 @@ let venue;
 let race;
 
 const listenerInstaller = (instances, DOMElements) => {
+  DOMElements.reset.addEventListener('click', () => {
+    document.querySelectorAll("select").forEach(select => {
+      select.selectedIndex = 0;
+    });
+    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(instances);
+  });
+
   DOMElements.year_options.addEventListener('change', e => {
     year = e.currentTarget.value.slice(2);
     const filteredInstances = filterInstances(instances);

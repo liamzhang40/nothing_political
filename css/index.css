@@ -150,7 +150,7 @@ foreignObject p {
 
 .open-modal {
   border: 2px solid #1d2c4d;
-  border-radius: 3px;
+  border-radius: 5px;
   padding: 10px 20px;
   margin-right: 20px;
   transition: 0.3s;
