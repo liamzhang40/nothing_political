@@ -143,17 +143,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 document.addEventListener('DOMContentLoaded', () => {
-
-  let latLng = {};
   let instances;
+  const DOMElements = {};
   Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])();
+
+  DOMElements.yearOptions = document.getElementById('year-options');
+  DOMElements.genderOptions = document.getElementById('gender-options');
+  DOMElements.venueOptions = document.getElementById('venue-options');
+  DOMElements.raceOptions = document.getElementById('race-options');
+  DOMElements.reset = document.getElementById('reset');
 
   d3.csv("https://raw.githubusercontent.com/liamzhang40/nothing_political/master/csv/merge.csv").then(data => {
     instances = data;
     setTimeout(() => Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(data), 1000);
     Object(__WEBPACK_IMPORTED_MODULE_2__listener_installer__["a" /* default */])(instances, DOMElements);
   });
-
 
   document.getElementsByClassName('modal-screen')[0].addEventListener('click', e => {
     document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
@@ -166,14 +170,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementsByClassName('open-modal')[0].addEventListener('click', e => {
     document.getElementsByClassName('modal')[0].classList.add('is-open');
   });
-
-  const DOMElements = {};
-
-  DOMElements.year_options = document.getElementById('year-options');
-  DOMElements.gender_options = document.getElementById('gender-options');
-  DOMElements.venue_options = document.getElementById('venue-options');
-  DOMElements.race_options = document.getElementById('race-options');
-  DOMElements.reset = document.getElementById('reset');
 });
 
 
@@ -677,61 +673,79 @@ const parseInstances = instances => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__update_instances__ = __webpack_require__(0);
 
 
-let year;
-let gender;
-let venue;
-let race;
 
 const listenerInstaller = (instances, DOMElements) => {
-  DOMElements.reset.addEventListener('click', () => {
-    document.querySelectorAll("select").forEach(select => {
-      select.selectedIndex = 0;
+  let selectorValues = {
+    yearOptions: "",
+    genderOptions: "",
+    venueOptions: "",
+    raceOptions: ""
+  };
+
+  for (let key in DOMElements) {
+    if (DOMElements.hasOwnProperty(key)) {
+      if (key === "reset") {
+        DOMElements.reset.addEventListener('click', () => {
+          document.querySelectorAll("select").forEach(select => {
+            select.selectedIndex = 0;
+          });
+          selectorValues.yearOptions = "";
+          selectorValues.genderOptions = "";
+          selectorValues.venueOptions = "";
+          selectorValues.raceOptions = "";
+          Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(instances);
+        });
+      } else {
+        DOMElements[key].addEventListener('change', e => {
+          if (key === "yearOptions") selectorValues[key] = e.currentTarget.value.slice(2);
+          else selectorValues[key] = e.currentTarget.value;
+          console.log(selectorValues)
+          const filteredInstances = filterInstances(instances);
+          Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+        });
+      }
+    }
+  }
+
+  // DOMElements.year_options.addEventListener('change', e => {
+  //   year = e.currentTarget.value.slice(2);
+  //   const filteredInstances = filterInstances(instances);
+  //   updateInstances(filteredInstances);
+  // });
+
+  // DOMElements.venue_options.addEventListener('change', e => {
+  //   venue = e.currentTarget.value;
+  //   const filteredInstances = filterInstances(instances);
+  //   updateInstances(filteredInstances);
+  // });
+
+  // DOMElements.gender_options.addEventListener('change', e => {
+  //   gender = e.currentTarget.value;
+  //   const filteredInstances = filterInstances(instances);
+  //   updateInstances(filteredInstances);
+  // });
+
+  // DOMElements.race_options.addEventListener('change', e => {
+  //   race = e.currentTarget.value;
+  //   const filteredInstances = filterInstances(instances);
+  //   updateInstances(filteredInstances);
+  // });
+
+  const filterInstances = (instances) => {
+    const res = instances.filter(instance => {
+      let date = instance.date;
+      date = date.slice(date.length - 2);
+  
+      return (!selectorValues.yearOptions || date === selectorValues.yearOptions || (parseInt(date) < 14 && selectorValues.yearOptions === "d")) &&
+        (!selectorValues.venueOptions || instance.venue === selectorValues.venueOptions) &&
+        (!selectorValues.genderOptions || instance.gender === selectorValues.genderOptions) &&
+        (!selectorValues.raceOptions || instance.race.toUpperCase() === selectorValues.raceOptions.toUpperCase());
     });
-    year = "";
-    gender = "";
-    venue = "";
-    race = "";
-    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(instances);
-  });
-
-  DOMElements.year_options.addEventListener('change', e => {
-    year = e.currentTarget.value.slice(2);
-    const filteredInstances = filterInstances(instances);
-    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
-  });
-
-  DOMElements.venue_options.addEventListener('change', e => {
-    venue = e.currentTarget.value;
-    const filteredInstances = filterInstances(instances);
-    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
-  });
-
-  DOMElements.gender_options.addEventListener('change', e => {
-    gender = e.currentTarget.value;
-    const filteredInstances = filterInstances(instances);
-    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
-  });
-
-  DOMElements.race_options.addEventListener('change', e => {
-    race = e.currentTarget.value;
-    const filteredInstances = filterInstances(instances);
-    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
-  });
+  
+    return res;
+  };
 };
 
-const filterInstances = (instances) => {
-  const res = instances.filter(instance => {
-    let date = instance.date;
-    date = date.slice(date.length - 2);
-
-    return (!year || date === year || (parseInt(date) < 14 && year === "d")) &&
-      (!venue || instance.venue === venue) &&
-      (!gender || instance.gender === gender) &&
-      (!race || instance.race.toUpperCase() === race.toUpperCase());
-  });
-
-  return res;
-};
 
 /* harmony default export */ __webpack_exports__["a"] = (listenerInstaller);
 
