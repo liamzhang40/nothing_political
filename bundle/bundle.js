@@ -70,9 +70,9 @@
 "use strict";
 const updateInstances = (data) => {
   const projection = d3.geoAlbersUsa().scale(1280).translate([960/2, 600/2]);
-
   const map = d3.select("svg");
   const circles = map.selectAll(".circle-instances").remove().exit();
+
   circles.data(data)
     .enter().append("circle")
     .attr("class", "circle-instances")
@@ -88,43 +88,45 @@ const updateInstances = (data) => {
     .attr("r", 0.5)
     .transition().duration(750)
     .attr("r", datum => Math.sqrt(datum.total_victims));
-};
-
-const handleMouseOver = (datum, i) => {
-  if (datum.sources) {
-    const currentCircle = d3.event.target;
-    const svg = d3.select("svg");
-    const dialogue = svg.append("polygon")
-    .attr("id", `c${i}`)
-    .attr("points", "0,0 0,160 300,160 300,0 50,0 37.5,-15 25,0")
-    .attr("transform", `translate(
-      ${currentCircle.attributes.cx.nodeValue - 37.5},
-      ${parseFloat(currentCircle.attributes.cy.nodeValue) + 30}
-    )`)
-    .attr("fill", "#D8D8D8")
-    .attr("opacity", 0)
-    .transition()
-    .duration(500)
-    .attr("opacity", 0.75);
-
-    const container = svg.append("foreignObject")
-    .attr("width", 300)
-    .attr("height", 160)
-    .attr("x", currentCircle.attributes.cx.nodeValue - 37.5)
-    .attr("y", parseFloat(currentCircle.attributes.cy.nodeValue) + 30);
-
-    container.append("xhtml:div")
-      .append("p")
-      .html(`${datum.summary}`);
+  
+  // function declaration is hoisted
+  function handleMouseOver (datum, i) {
+    if (datum.sources) {
+      const currentCircle = d3.event.target;
+      const svg = d3.select("svg");
+      const dialogue = svg.append("polygon")
+      .attr("id", `c${i}`)
+      .attr("points", "0,0 0,160 300,160 300,0 50,0 37.5,-15 25,0")
+      .attr("transform", `translate(
+        ${currentCircle.attributes.cx.nodeValue - 37.5},
+        ${parseFloat(currentCircle.attributes.cy.nodeValue) + 30}
+      )`)
+      .attr("fill", "#D8D8D8")
+      .attr("opacity", 0)
+      .transition()
+      .duration(500)
+      .attr("opacity", 0.75);
+  
+      const container = svg.append("foreignObject")
+      .attr("width", 300)
+      .attr("height", 160)
+      .attr("x", currentCircle.attributes.cx.nodeValue - 37.5)
+      .attr("y", parseFloat(currentCircle.attributes.cy.nodeValue) + 30);
+  
+      container.append("xhtml:div")
+        .append("p")
+        .html(`${datum.summary}`);
+    }
   }
-};
+  
+  function handleMouseOut (datum, i) {
+    if (datum.sources) {
+      d3.select(`#c${i}`).remove();
+      d3.select("foreignObject").remove();
+    }
+  }
+  };
 
-const handleMouseOut = (datum, i) => {
-  if (datum.sources) {
-    d3.select(`#c${i}`).remove();
-    d3.select("foreignObject").remove()
-;  }
-};
 
 /* harmony default export */ __webpack_exports__["a"] = (updateInstances);
 
@@ -145,18 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     Object(__WEBPACK_IMPORTED_MODULE_1__util_fetchData__["b" /* fetchInstance */])().then(instances => {
       Object(__WEBPACK_IMPORTED_MODULE_0__map__["a" /* default */])(gunSales, instances);
     });
-  });
-
-  document.getElementsByClassName('modal-screen')[0].addEventListener('click', e => {
-    document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
-  });
-
-  document.getElementsByClassName('close-modal')[0].addEventListener('click', e => {
-    document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
-  });
-
-  document.getElementsByClassName('open-modal')[0].addEventListener('click', e => {
-    document.getElementsByClassName('modal')[0].classList.add('is-open');
   });
 });
 
@@ -234,19 +224,21 @@ const initMap = (gunSales, instances) => {
     }
   
     const filteredGunSales = gunSales.filter(sale => {
-      return sale.month.slice(0,4) === selectedYear && sale.state === state;
+      return sale.month.slice(2,4) === selectedYear && sale.state === state;
     });
   
     const filteredInstances = instances.filter(instance => {
-      return instance.date.slice(instance.date.length - 2) === selectedYear.slice(2) && instance.location === state;
+
+      return instance.date.slice(instance.date.length - 2) === selectedYear && instance.location === state;
     });
-  
+
     Object(__WEBPACK_IMPORTED_MODULE_0__update_chart__["a" /* default */])(filteredGunSales, filteredInstances);
   };
 
   const mountInstances = instances => {
     Object(__WEBPACK_IMPORTED_MODULE_1__update_instances__["a" /* default */])(instances);
-    Object(__WEBPACK_IMPORTED_MODULE_2__listener_installer__["a" /* default */])(instances);
+    const installer = new __WEBPACK_IMPORTED_MODULE_2__listener_installer__["a" /* default */](instances);
+    installer.install();
   };
 };
 
@@ -326,18 +318,20 @@ const updateChart = (gunsales, instances) => {
     .transition()
     .duration(750)
     .attr("r", Math.sqrt(barWidth));
+  
+  // function declaration is hoisted
+  function parseInstances (instances) {
+    const res = {};
+    instances.forEach(instance => {
+      let month = instance.date.split('/')[0];
+      if (month.length === 1) month = "0" + month;
+      if (res[month]) res[month] += 1;
+      else res[month] = 1;
+    });
+    return Object.keys(res).map(key => {return {[key]: res[key]};});
+  }
 };
 
-const parseInstances = instances => {
-  const res = {};
-  instances.forEach(instance => {
-    let month = instance.date.split('/')[0];
-    if (month.length === 1) month = "0" + month;
-    if (res[month]) res[month] += 1;
-    else res[month] = 1;
-  });
-  return Object.keys(res).map(key => {return {[key]: res[key]};});
-};
 
 /* harmony default export */ __webpack_exports__["a"] = (updateChart);
 
@@ -350,49 +344,61 @@ const parseInstances = instances => {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__update_instances__ = __webpack_require__(0);
 
 
-const listenerInstaller = (instances) => {
-  const selectorValues = {
-    "year-options": "",
-    "gender-options": "",
-    "venue-options": "",
-    "race-options": ""
-  };
+class listenerInstaller {
+  constructor(instances) {
+    this.instances = instances;
+    this.selectorValues = {
+      "year-options": "",
+      "gender-options": "",
+      "venue-options": "",
+      "race-options": ""
+    };
+  }
 
-  document.getElementById('reset').addEventListener('click', () => {
-    document.querySelectorAll("select").forEach(select => {
-      select.selectedIndex = 0;
+  install() {
+    document.getElementsByClassName('modal-screen')[0].addEventListener('click', e => {
+      document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
     });
-    for (let option in selectorValues) {
-      if (selectorValues.hasOwnProperty(option)) {
-        selectorValues[option] = "";
-      }
-    }
-    Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(instances);
-  });
 
-  document.querySelectorAll('select').forEach(selector => {
-    selector.addEventListener('change', e => {
-      selectorValues[selector.className] = e.currentTarget.value;
-      const filteredInstances = filterInstances(instances);
-      Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+    document.getElementsByClassName('close-modal')[0].addEventListener('click', e => {
+      document.getElementsByClassName('modal is-open')[0].classList.remove('is-open');
     });
-  });
+
+    document.getElementsByClassName('open-modal')[0].addEventListener('click', e => {
+      document.getElementsByClassName('modal')[0].classList.add('is-open');
+    });
+    
+    document.getElementById('reset').addEventListener('click', () => {
+      document.querySelectorAll("select").forEach(selector => {
+        selector.selectedIndex = 0;
+        this.selectorValues[selector.className] = "";
+      });
+      Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(this.instances);
+    });
   
-  const filterInstances = (instances) => {
-    console.log(selectorValues)
-    const res = instances.filter(instance => {
+    document.querySelectorAll('select').forEach(selector => {
+      selector.addEventListener('change', e => {
+        this.selectorValues[selector.className] = e.currentTarget.value;
+        const filteredInstances = this.filterInstances();
+        Object(__WEBPACK_IMPORTED_MODULE_0__update_instances__["a" /* default */])(filteredInstances);
+      });
+    });
+  }
+  
+  filterInstances() {
+    const res = this.instances.filter(instance => {
       let date = instance.date;
       date = date.slice(date.length - 2);
   
-      return (!selectorValues["year-options"] || date === selectorValues["year-options"] || (parseInt(date) < 14 && selectorValues["year-options"] === "d")) &&
-        (!selectorValues["venue-options"] || instance.venue === selectorValues["venue-options"]) &&
-        (!selectorValues["gender-options"] || instance.gender === selectorValues["gender-options"]) &&
-        (!selectorValues["race-options"] || instance.race.toUpperCase() === selectorValues["race-options"].toUpperCase());
+      return (!this.selectorValues["year-options"] || date === this.selectorValues["year-options"] || (parseInt(date) < 14 && this.selectorValues["year-options"] === "d")) &&
+        (!this.selectorValues["venue-options"] || instance.venue === this.selectorValues["venue-options"]) &&
+        (!this.selectorValues["gender-options"] || instance.gender === this.selectorValues["gender-options"]) &&
+        (!this.selectorValues["race-options"] || instance.race.toUpperCase() === this.selectorValues["race-options"].toUpperCase());
     });
   
     return res;
-  };
-};
+  }
+}
 
 /* harmony default export */ __webpack_exports__["a"] = (listenerInstaller);
 
